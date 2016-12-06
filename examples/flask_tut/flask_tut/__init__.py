@@ -37,17 +37,21 @@ def dt_110x():
 def data():
     """Return server side data."""
     # defining columns
-    columns = []
-    columns.append(ColumnDT('id'))
-    columns.append(ColumnDT('name', filter=upper))
-    columns.append(ColumnDT('address.description'))
-    columns.append(ColumnDT('created_at'))
+    columns = [
+        ColumnDT(User.id),
+        ColumnDT(User.name),
+        ColumnDT(Address.description),
+        ColumnDT(User.created_at)
+    ]
 
     # defining the initial query depending on your purpose
-    query = db.session.query(User).join(Address).filter(Address.id > 14)
+    query = db.session.query().select_from(User).join(Address).filter(Address.id > 14)
+
+    # GET parameters
+    params = request.args.to_dict()
 
     # instantiating a DataTable for the query and table needed
-    rowTable = DataTables(request.args, User, query, columns)
+    rowTable = DataTables(params, query, columns)
 
     # returns what is needed by DataTable
     return jsonify(rowTable.output_result())
