@@ -21,12 +21,6 @@ def home():
     return render_template('home.html', project='flask_tut')
 
 
-@app.route('/dt_19x', methods=['GET'])
-def dt_19x():
-    """List users with DataTables <= 1.9.x."""
-    return render_template('dt_19x.html', project='dt_19x')
-
-
 @app.route('/dt_110x', methods=['GET'])
 def dt_110x():
     """List users with DataTables <= 1.10.x."""
