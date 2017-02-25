@@ -129,3 +129,57 @@ class OrderingTest(BaseTest):
 
         assert res['data'][0][1] == 'UserFirstAddress'
         assert res['data'][0][2] == '000_Address'
+
+    def test_with_named_order_column(self):
+        """Test with invalid order column."""
+        columns = [
+            ColumnDT(User.id, mData='id'),
+            ColumnDT(User.name, mData='name')]
+
+        query = self.session.query().select_from(User)
+
+        # Ascending by column index 1 == name
+        params = self.create_dt_params(columns,
+                                       order=[{"column": 1, "dir": "asc"}])
+
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        assert res['data'][0]['name'] == '000_User'
+
+    def test_with_named_order_column_reverse(self):
+        """Test with invalid order column."""
+        columns = [
+            ColumnDT(User.id, mData='id'),
+            ColumnDT(User.name, mData='name')]
+
+        query = self.session.query().select_from(User)
+
+        # Ascending by column index 0 == name
+        param_columns = columns[:]
+        param_columns.reverse()
+        params = self.create_dt_params(param_columns,
+                                       order=[{"column": 0, "dir": "asc"}])
+
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        assert res['data'][0]['name'] == '000_User'
+
+    def test_with_invalid_order_column(self):
+        """Test with invalid order column."""
+        columns = [
+            ColumnDT(User.id,),
+            ColumnDT(User.name)]
+
+        query = self.session.query().select_from(User)
+
+        # Column index 2
+        params = self.create_dt_params(columns,
+                                       order=[{"column": 2, "dir": "asc"}])
+
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        assert res['error'] == 'Invalid order column: 2'
+
