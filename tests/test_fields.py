@@ -104,7 +104,7 @@ class FieldsTest2(BaseTest):
         assert len(res['data']) == 1
         assert res['recordsTotal'] == '52'
         assert res['recordsFiltered'] == '1'
-        assert res['data'][0]['1'] == 'User 51'
+        assert res['data'][0][1] == 'User 51'
 
 
 class FieldsTest3(BaseTest):
@@ -148,7 +148,7 @@ class FieldsTest3(BaseTest):
             assert len(res['data']) == 1
             assert res['recordsTotal'] == '1'
             assert res['recordsFiltered'] == '1'
-            assert res['data'][0]['1'] == 'Feeeeear Of'
+            assert res['data'][0][1] == 'Feeeeear Of'
 
 
 class FieldsTest4(BaseTest):

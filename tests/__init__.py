@@ -62,7 +62,7 @@ class BaseTest(unittest.TestCase):
 
         for i, item in enumerate(columns):
             cols = 'columns[%s]' % i
-            params['%s%s' % (cols, '[data]')] = i
+            params['%s%s' % (cols, '[data]')] = item.mData or str(i)
             params['%s%s' % (cols, '[name]')] = ''
             params['%s%s' % (cols, '[searchable]')] = 'true'
             params['%s%s' % (cols, '[orderable]')] = 'true'
@@ -71,6 +71,6 @@ class BaseTest(unittest.TestCase):
 
         for i, item in enumerate(order or [{'column': 0, 'dir': 'asc'}]):
             for key, value in item.items():
-                params['order[%s][%s]' % (i, key)] = str(value)
+                params['order[%s][%s]' % (str(i), key)] = str(value)
 
         return params

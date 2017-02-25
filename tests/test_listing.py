@@ -123,8 +123,8 @@ class ListingTest2(BaseTest):
         res = rowTable.output_result()
 
         assert len(res['data']) == 1
-        assert res['data'][0]['1'] == 'Us'
-        assert res['data'][0]['2'] == 'User 51'
+        assert res['data'][0][1] == 'Us'
+        assert res['data'][0][2] == 'User 51'
 
 
 class ListingTest3(BaseTest):
@@ -158,5 +158,5 @@ class ListingTest3(BaseTest):
         assert len(res['data']) == 2
         assert res['recordsTotal'] == '52'
         assert res['recordsFiltered'] == '52'
-        assert res['data'][0]['0'] == 51
-        assert res['data'][1]['0'] == 52
+        assert res['data'][0][0] == 51
+        assert res['data'][1][0] == 52

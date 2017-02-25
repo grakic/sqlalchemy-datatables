@@ -47,7 +47,7 @@ class OrderingTest(BaseTest):
         rowTable = DataTables(params, query, columns)
         res = rowTable.output_result()
 
-        assert res['data'][0]['1'] == 'zzz_User'
+        assert res['data'][0][1] == 'zzz_User'
 
         # Ascending
         params = self.create_dt_params(columns,
@@ -56,7 +56,7 @@ class OrderingTest(BaseTest):
         rowTable = DataTables(params, query, columns)
         res = rowTable.output_result()
 
-        assert res['data'][0]['1'] == '000_User'
+        assert res['data'][0][1] == '000_User'
 
     def test_ordering_nulls(self):
         """Test if it returns a list with the correct nulls order."""
@@ -111,8 +111,8 @@ class OrderingTest(BaseTest):
         rowTable = DataTables(params, query, columns)
         res = rowTable.output_result()
 
-        assert res['data'][0]['1'] == 'UserLastAddress'
-        assert res['data'][0]['2'] == 'zzz_Address'
+        assert res['data'][0][1] == 'UserLastAddress'
+        assert res['data'][0][2] == 'zzz_Address'
 
         columns = [
             ColumnDT(User.id,),
@@ -127,5 +127,5 @@ class OrderingTest(BaseTest):
         rowTable = DataTables(params, query, columns)
         res = rowTable.output_result()
 
-        assert res['data'][0]['1'] == 'UserFirstAddress'
-        assert res['data'][0]['2'] == '000_Address'
+        assert res['data'][0][1] == 'UserFirstAddress'
+        assert res['data'][0][2] == '000_Address'
