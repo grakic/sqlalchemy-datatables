@@ -230,6 +230,10 @@ class DataTables:
         # total in the table unfiltered
         self.cardinality = 0
 
+        # column list lookup
+        self.column_names = []
+        self.column_indexes = {}
+
         self.yadcf_params = []
         self.filter_expressions = []
         self.error = None
@@ -286,6 +290,7 @@ class DataTables:
         # count before filtering
         self.cardinality = query.add_columns(self.columns[0].sqla_expr).count()
 
+        self._set_column_list()
         self._set_column_filter_expressions()
         self._set_global_filter_expression()
         self._set_sort_expressions()
@@ -318,10 +323,70 @@ class DataTables:
             *[c.sqla_expr for c in self.columns])
 
         # fetch the result of the queries
-        column_names = [col.mData if col.mData else str(i)
-                        for i, col in enumerate(self.columns)]
         self.results = [{k: v for k, v in zip(
-            column_names, row)} for row in query.all()]
+            self.column_names, row)} for row in query.all()]
+
+    def _set_column_list(self):
+        """
+        DataTables server-side API can request a subset of columns in
+        any order. This method creates a list of column to match request
+        params. Filtering and searching request params are then correctly
+        applied over this new column list. Columns can be queried by data
+        source name (mData) or column index.
+
+        Having:
+
+            columns = [
+              ColumnDT(User.id, mData="id"),
+              ColumnDT(User.name, mData="name")
+            ]
+
+        DataTables can request:
+
+            column[0][data]=0&column[1][data]=1
+                -> User.id, User.name
+
+            column[0][data]=id&column[1][data]=name
+                -> User.id, User.name
+
+            column[0][data]=name&column[1][data]=id
+                -> User.name, User.id
+
+            column[0][data]=name&column[1][data]=0
+                -> User.name, User.id
+        """
+
+        lookup_column = {}
+        for i, col in enumerate(self.columns):
+            if col.mData:
+                lookup_column[col.mData] = col
+            # add both so we can look for both col(1) and col("name")
+            lookup_column[i] = col
+
+        columns = []
+        i = 0
+        while self.params.get('columns[{:d}][data]'.format(i), False) != False:
+            column_data = self.params.get('columns[{:d}][data]'.format(i))
+
+            # skip if data is null or undefined
+            if column_data:
+
+                if column_data.isdigit():
+                    column_data = int(column_data)
+
+                column = lookup_column.get(column_data, False)
+                if not column:
+                    raise(ValueError(
+                        'Invalid column data param {:s}'.format(str(column_data))
+                    ))
+
+                self.column_indexes[i] = column
+                self.column_names.append(column_data)
+                columns.append(column)
+
+            i += 1
+
+        self.columns = columns
 
     def _set_column_filter_expressions(self):
         """Construct the query: filtering.
@@ -371,7 +436,10 @@ class DataTables:
         i = 0
         while self.params.get('order[{:d}][column]'.format(i), False):
             column_nr = int(self.params.get('order[{:d}][column]'.format(i)))
-            column = self.columns[column_nr]
+            column = self.column_indexes.get(column_nr, False)
+            if not column:
+                raise ValueError(
+                    'Invalid order column: {}'.format(column_nr))
             direction = self.params.get('order[{:d}][dir]'.format(i))
             sort_expr = column.sqla_expr
             if direction == 'asc':
