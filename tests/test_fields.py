@@ -30,6 +30,25 @@ class FieldsTest(BaseTest):
         assert 'Address' in res['data'][0]
         assert 'Created at' in res['data'][0]
 
+    def test_fields_mdata_subset(self):
+        """Test if it returns a subset of all columns."""
+        columns = [
+            ColumnDT(User.id, mData='ID'),
+            ColumnDT(User.name, mData='Username'),
+            ColumnDT(User.created_at, mData='Created at')]
+
+        query = self.session.query()
+
+        params = self.create_dt_params(columns[1:])
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        user = self.session.query(User).first()
+
+        assert len(res['data'][0]) == 2
+        assert 'Username' in res['data'][0]
+        assert 'Created at' in res['data'][0]
+
     def test_fields_search_filters(self):
         """Test if the result's data are filtered after search."""
         query = self.session.query()

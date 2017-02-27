@@ -90,6 +90,47 @@ class ListingTest(BaseTest):
 
         assert len(res['data']) == 50
 
+    def test_list_subset(self):
+        """Test if it returns a subset of all columns."""
+        columns = [
+            ColumnDT(User.id),
+            ColumnDT(User.name),
+            ColumnDT(User.created_at)]
+
+        query = self.session.query()
+
+        params = self.create_dt_params(columns[:2])
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        user = self.session.query(User).first()
+
+        assert len(res['data'][0]) == 2
+        assert res['data'][0][0] == user.id
+        assert res['data'][0][1] == user.name
+
+    def test_list_reversed(self):
+        """Test if it returns a subset of all columns matching order in params list."""
+        columns = [
+            ColumnDT(User.name),
+            ColumnDT(User.id)]
+
+        query = self.session.query()
+
+        # Build params with columns[0][data]=1&columns[0][data]=0, returning (id,name)
+        params = self.create_dt_params(columns)
+        params['columns[0][data]']='1'
+        params['columns[1][data]']='0'
+
+        rowTable = DataTables(params, query, columns)
+        res = rowTable.output_result()
+
+        user = self.session.query(User).first()
+
+        assert len(res['data'][0]) == 2
+        assert res['data'][0][0] == user.name
+        assert res['data'][0][1] == user.id
+
 
 class ListingTest2(BaseTest):
 
